@@ -526,7 +526,7 @@ def render_timer_sidebar():
 
     st.sidebar.markdown("---")
     st.sidebar.markdown("#### 🧩 Question Palette")
-    st.sidebar.markdown("<small>🟢 Ans | 🔴 Unans | 🟣 Review | 📍 Current</small>", unsafe_allow_html=True)
+    st.sidebar.markdown("<small>🟢 Ans | 🔴 Unans | 🟣 Review</small><br><small><i>(Blue button = Current Question)</i></small>", unsafe_allow_html=True)
 
     curr_idx = st.session_state.current_q
     curr_subj = QUESTIONS[curr_idx]["subject"]
@@ -549,20 +549,20 @@ def render_timer_sidebar():
             st.sidebar.markdown(sec_hdr)
 
         indices = stats['indices']
-        # Render clean grid row by row (4 items per row)
-        for row_start in range(0, len(indices), 4):
-            cols = st.sidebar.columns(4)
-            row_indices = indices[row_start : row_start + 4]
+        # Render clean grid row by row (3 items per row for better width)
+        for row_start in range(0, len(indices), 3):
+            cols = st.sidebar.columns(3)
+            row_indices = indices[row_start : row_start + 3]
             for col_idx, q_idx in enumerate(row_indices):
-                sec_q_num = row_start + col_idx + 1  # 1 to 16 in Physics/Chem, 1 to 13 in Math
+                sec_q_num = row_start + col_idx + 1
                 is_current_q = (q_idx == curr_idx)
                 
-                # Determine status emoji
+                # Determine status emoji (compact)
                 is_answered = q_idx in st.session_state.answers
                 is_marked = q_idx in st.session_state.marked_review
                 
                 if is_marked and is_answered:
-                    status = "🟣✓"
+                    status = "🟣"
                 elif is_marked:
                     status = "🟣"
                 elif is_answered:
@@ -570,15 +570,10 @@ def render_timer_sidebar():
                 else:
                     status = "🔴"
                 
-                # Active question gets primary color, others get secondary. 
-                # We can append a pin for active question.
-                if is_current_q:
-                    status += "📍"
-
+                # Very compact label
                 btn_label = f"{sec_q_num} {status}"
                 btn_type = "primary" if is_current_q else "secondary"
 
-                # Use 100% unique key for every single button to eliminate cross-section click collision
                 unique_key = f"palette_btn_{subj}_{sec_q_num}_global_{q_idx}"
                 if cols[col_idx].button(btn_label, key=unique_key, use_container_width=True, type=btn_type):
                     st.session_state.current_q = q_idx
