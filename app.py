@@ -3,7 +3,7 @@ PCM Advanced Mock Test — Streamlit Application
 ================================================
 A complete competitive-exam mock test with:
 - 45 JEE-level questions (16 Phys + 16 Chem + 13 Math with 11 Trigonometry questions)
-- 3-hour countdown timer with auto-submit
+- Live JavaScript countdown timer with auto-submit
 - Section-relative question palette (1 to 16 in Phys, 1 to 16 in Chem, 1 to 13 in Math)
 - Direct 1-click jump navigation
 - Comprehensive post-test analytics
@@ -62,39 +62,6 @@ def inject_css():
 
     html, body, [class*="st-"] {
         font-family: 'Inter', sans-serif;
-    }
-
-    /* Timer styles */
-    .timer-container {
-        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-        border: 1px solid rgba(99,102,241,0.3);
-        border-radius: 16px;
-        padding: 16px 24px;
-        text-align: center;
-        box-shadow: 0 0 30px var(--accent-glow);
-        margin-bottom: 16px;
-    }
-    .timer-label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 2px;
-        color: #a5b4fc;
-        text-transform: uppercase;
-        margin-bottom: 4px;
-    }
-    .timer-value {
-        font-size: 2.2rem;
-        font-weight: 800;
-        font-variant-numeric: tabular-nums;
-        color: #e0e7ff;
-        letter-spacing: 2px;
-    }
-    .timer-warning { color: #fbbf24 !important; }
-    .timer-danger  { color: #f87171 !important; animation: pulse-red 1s infinite; }
-
-    @keyframes pulse-red {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
     }
 
     /* Start screen */
@@ -252,30 +219,6 @@ def inject_css():
         white-space: pre-wrap;
     }
 
-    .correct-tag { color: var(--green); font-weight: 700; }
-    .wrong-tag   { color: var(--red);   font-weight: 700; }
-    .skip-tag    { color: var(--text-secondary); font-weight: 600; }
-
-    /* Warning banners */
-    .warning-banner {
-        padding: 12px 20px;
-        border-radius: 10px;
-        font-weight: 600;
-        text-align: center;
-        margin-bottom: 12px;
-        animation: fadeInDown 0.3s;
-    }
-    .warn-60  { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
-    .warn-30  { background: rgba(245,158,11,0.25); color: #fbbf24; border: 1px solid rgba(245,158,11,0.5); }
-    .warn-15  { background: rgba(239,68,68,0.2);   color: #f87171; border: 1px solid rgba(239,68,68,0.4); }
-    .warn-5   { background: rgba(239,68,68,0.35);  color: #fca5a5; border: 1px solid rgba(239,68,68,0.6); }
-    .warn-1   { background: rgba(239,68,68,0.5);   color: #fee2e2; border: 1px solid rgba(239,68,68,0.8); animation: pulse-red 0.5s infinite; }
-
-    @keyframes fadeInDown {
-        from { opacity: 0; transform: translateY(-10px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-
     /* Section divider */
     .section-title {
         font-size: 1.3rem;
@@ -314,7 +257,6 @@ def init_session():
         "marked_review": set(),
         "show_submit_confirm": False,
         "auto_submitted": False,
-        "confirmed_warnings": set(),
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -328,14 +270,6 @@ def get_remaining_seconds():
     elapsed = (datetime.now() - st.session_state.start_time).total_seconds()
     remaining = DURATION_MINUTES * 60 - elapsed
     return max(0, remaining)
-
-
-def format_time(secs):
-    secs = int(secs)
-    h = secs // 3600
-    m = (secs % 3600) // 60
-    s = secs % 60
-    return f"{h:02d}:{m:02d}:{s:02d}"
 
 
 # ── Scoring helpers ──────────────────────────────────────────
@@ -470,10 +404,10 @@ def render_start_screen():
     st.markdown("""
     > **Instructions:**
     > - The test is structured into **3 Sections**: Section 1 (Physics 16 Qs), Section 2 (Chemistry 16 Qs), and Section 3 (Mathematics 13 Qs).
-    > - Buttons inside each section count cleanly as **1, 2, 3... up to 16** (or 13 for Math).
+    > - Buttons inside each section count cleanly from **1 to 16** (or 1 to 13 for Math).
     > - Click any question number directly in the palette to jump to it instantly.
-    > - Use **Save & Next** to save your selection and advance.
-    > - The test will **auto-submit** when the timer reaches zero.
+    > - Use **Save & Next** to record your choice and move to the next question.
+    > - The test will **auto-submit** when the 3-hour timer reaches zero.
     """)
 
     st.markdown("")
@@ -488,7 +422,6 @@ def render_start_screen():
 def render_timer_sidebar():
     """Sidebar with live JS timer, section palette, and navigation."""
     remaining = get_remaining_seconds()
-    remaining_min = remaining / 60
 
     # Live JavaScript countdown timer embedded in sidebar
     timer_html = f"""
@@ -574,14 +507,6 @@ def render_timer_sidebar():
     with st.sidebar:
         components.html(timer_html, height=105)
 
-    # Time warnings
-    if remaining_min <= 1 and remaining > 0:
-        st.sidebar.markdown('<div class="warning-banner warn-1">⚠️ FINAL MINUTE — Submit now!</div>', unsafe_allow_html=True)
-    elif remaining_min <= 5:
-        st.sidebar.markdown('<div class="warning-banner warn-5">⏰ Less than 5 minutes remaining!</div>', unsafe_allow_html=True)
-    elif remaining_min <= 15:
-        st.sidebar.markdown('<div class="warning-banner warn-15">⏰ 15 minutes remaining</div>', unsafe_allow_html=True)
-
     # Progress stats
     answered = len(st.session_state.answers)
     reviewed = len(st.session_state.marked_review)
@@ -650,7 +575,7 @@ def render_question_screen():
     idx = st.session_state.current_q
     q = QUESTIONS[idx]
 
-    # Calculate section stats for section tabs
+    # Section stats for navigation bar
     section_stats = {}
     for subj in ["Physics", "Chemistry", "Mathematics"]:
         q_indices = [i for i, item in enumerate(QUESTIONS) if item["subject"] == subj]
@@ -659,19 +584,19 @@ def render_question_screen():
         section_stats[subj] = {"total": tot, "attempted": att, "indices": q_indices}
 
     # Section Quick Navigation Bar
-    st.markdown("### 📚 Test Sections")
+    st.markdown("##### 📍 Jump to Section:")
     sec_cols = st.columns(3)
     sections_info = [
-        ("⚡ Section 1: Physics (Q1–16)", "Physics"),
-        ("🧪 Section 2: Chemistry (Q1–16)", "Chemistry"),
-        ("📐 Section 3: Mathematics (Q1–13)", "Mathematics")
+        ("⚡ Section 1: Physics (16 Qs)", "Physics"),
+        ("🧪 Section 2: Chemistry (16 Qs)", "Chemistry"),
+        ("📐 Section 3: Mathematics (13 Qs)", "Mathematics")
     ]
     curr_subj = q["subject"]
 
     for sc, (sec_title, sec_subj) in zip(sec_cols, sections_info):
         stats = section_stats[sec_subj]
         is_active_sec = (curr_subj == sec_subj)
-        tab_label = f"{sec_title}\n({stats['attempted']}/{stats['total']} Answered)"
+        tab_label = f"{sec_title} — ({stats['attempted']}/{stats['total']} Done)"
         
         with sc:
             if st.button(
@@ -699,7 +624,7 @@ def render_question_screen():
     st.markdown(f"""
     <div class="question-card">
         <div class="q-header">
-            <span class="q-number">{q['subject']} — Question {sec_q_num} of {sec_total} <small style="color:#94a3b8;font-weight:400;">(Overall Q{idx+1}/45)</small></span>
+            <span class="q-number">Section {['Physics','Chemistry','Mathematics'].index(curr_subj)+1}: {q['subject']} — Question {sec_q_num} of {sec_total} <small style="color:#94a3b8;font-weight:400;">(Overall Q{idx+1}/45)</small></span>
             <div>
                 <span class="q-badge {subj_cls}">{q['subject']}</span>
             </div>
@@ -714,16 +639,21 @@ def render_question_screen():
 
     # Current selected answer
     current_ans = st.session_state.answers.get(idx)
-    if current_ans and current_ans in option_keys:
-        default_idx = option_keys.index(current_ans)
-    else:
-        default_idx = None
+    default_idx = option_keys.index(current_ans) if (current_ans and current_ans in option_keys) else None
+
+    # Callback to immediately sync answer to session state on click
+    def on_answer_select():
+        radio_val = st.session_state.get(f"radio_{idx}")
+        if radio_val:
+            ans_key = radio_val.split(")")[0].strip()
+            st.session_state.answers[idx] = ans_key
 
     selected = st.radio(
         "Select your answer:",
         options_list,
         index=default_idx,
         key=f"radio_{idx}",
+        on_change=on_answer_select,
         label_visibility="collapsed",
     )
 
@@ -790,53 +720,6 @@ def render_question_screen():
             if st.button("❌ Cancel", use_container_width=True):
                 st.session_state.show_submit_confirm = False
                 st.rerun()
-
-
-# ── Auto-refresh mechanism ───────────────────────────────────
-def setup_auto_refresh():
-    """Inject JS to auto-refresh every 30 seconds during the test for timer updates."""
-    if st.session_state.test_started and not st.session_state.test_submitted:
-        remaining = get_remaining_seconds()
-        if remaining <= 60:
-            interval = 5000   # every 5s in last minute
-        elif remaining <= 300:
-            interval = 10000  # every 10s in last 5 min
-        else:
-            interval = 30000  # every 30s otherwise
-
-        st.markdown(f"""
-        <script>
-        (function() {{
-            var remaining = {int(remaining)};
-            var interval = {interval};
-
-            setTimeout(function() {{
-                window.parent.location.reload();
-            }}, interval);
-
-            var timerEl = document.querySelector('.timer-value');
-            if (timerEl) {{
-                setInterval(function() {{
-                    remaining--;
-                    if (remaining < 0) remaining = 0;
-                    var h = Math.floor(remaining / 3600);
-                    var m = Math.floor((remaining % 3600) / 60);
-                    var s = remaining % 60;
-                    var timeStr = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-                    timerEl.textContent = timeStr;
-                    if (remaining <= 60) {{
-                        timerEl.className = 'timer-value timer-danger';
-                    }} else if (remaining <= 900) {{
-                        timerEl.className = 'timer-value timer-warning';
-                    }}
-                    if (remaining <= 0) {{
-                        window.parent.location.reload();
-                    }}
-                }}, 1000);
-            }}
-        }})();
-        </script>
-        """, unsafe_allow_html=True)
 
 
 # ══════════════════════════════════════════════════════════════
@@ -1086,7 +969,6 @@ def render_negative_marking_analysis(results):
     wrong_marks = results["wrong_marks"]
     correct = results["correct"]
     score = results["score"]
-    attempted = results["attempted"]
 
     c1, c2, c3 = st.columns(3)
     c1.metric("Marks Lost (Negative)", f"−{wrong_marks}")
@@ -1158,7 +1040,6 @@ def main():
         render_result_screen()
     elif st.session_state.test_started:
         render_question_screen()
-        setup_auto_refresh()
     else:
         render_start_screen()
 
