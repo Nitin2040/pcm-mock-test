@@ -2,7 +2,7 @@
 PCM Advanced Mock Test — Streamlit Application
 ================================================
 A complete competitive-exam mock test with:
-- 45 JEE-level questions (16 Chem + 16 Phys + 13 Math)
+- 45 JEE-level questions (16 Phys + 16 Chem + 13 Math)
 - 3-hour countdown timer with auto-submit
 - Question palette, navigation, and review marking
 - Comprehensive post-test analytics
@@ -486,53 +486,44 @@ def render_start_screen():
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown("#### 🧪 Chemistry (16 Q)")
+        st.markdown("#### ⚡ Section 1: Physics (16 Q)")
         st.markdown("""
-        **Main:** Chemical Kinetics (8-10 Q)
-        - Rate law, Order, Molecularity
-        - Integrated rate equations
-        - Half-life, Arrhenius equation
-        - Graph-based & numerical
-
-        **Also:** Thermodynamics, Equilibrium,
-        Electrochemistry, Solutions, Atomic
-        Structure, Chemical Bonding, Organic
+        **Topics (Q1 – Q16):**
+        - Electrostatics & Gauss's Law
+        - Capacitors & Dielectrics
+        - Current Electricity & Wheatstone Bridge
+        - Potentiometer & Drift Velocity
+        - Moving Charges & Magnetism (Cyclotron, Solenoid, Galvanometer)
         """)
 
     with col2:
-        st.markdown("#### ⚡ Physics (16 Q)")
+        st.markdown("#### 🧪 Section 2: Chemistry (16 Q)")
         st.markdown("""
-        **Main:** Electrostatics (8-10 Q)
-        - Coulomb's law, Electric field
-        - Potential, Gauss's law
-        - Capacitors, Dielectrics
-        - Graph-based & numerical
-
-        **Also:** Current Electricity, Magnetism,
-        EMI, Ray Optics, Modern Physics,
-        Kinematics, Work-Energy-Power
+        **Topics (Q17 – Q32):**
+        - Chemical Kinetics (Rate law, Order, Half-life)
+        - Arrhenius equation & Activation Energy
+        - Solid State (fcc/bcc Density & Packing efficiency)
+        - Solutions (Raoult's law, Colligative properties, Osmosis)
         """)
 
     with col3:
-        st.markdown("#### 📐 Mathematics (13 Q)")
+        st.markdown("#### 📐 Section 3: Mathematics (13 Q)")
         st.markdown("""
-        **Main Topics:**
-        - Units & Dimensions (2-3 Q)
-        - Trigonometry (3-4 Q)
-        - Mathematical Reasoning (2-3 Q)
-        - 3D Geometry (2-3 Q)
-
-        **Also:** Algebra, Differentiation,
-        Vectors, Probability
+        **Topics (Q33 – Q45):**
+        - **Trigonometry (6 Questions)** — Identities, Equations, Max/Min values, Inverse trig, Products, Triangle properties
+        - Matrices & Determinants
+        - Continuity & Differentiability
+        - Indefinite & Definite Integrals
         """)
 
     st.markdown("---")
     st.markdown("""
     > **Instructions:**
-    > - Each question has exactly **4 options** with **one correct answer**.
+    > - The test is structured sequentially into **3 Sections**: Section 1 (Physics Q1–16), Section 2 (Chemistry Q17–32), and Section 3 (Mathematics Q33–45).
+    > - Each question has **4 options** with **one correct answer**.
     > - Use **Save & Next** to record your answer and move ahead.
     > - Use **Mark for Review** to flag a question for later.
-    > - You can change your answer at any time before submission.
+    > - Click any question number (1, 2, 3...) directly in the palette to jump to it instantly.
     > - The test will **auto-submit** when the timer reaches zero.
     > - Answers and explanations are revealed **only after submission**.
     """)
@@ -674,12 +665,12 @@ def render_timer_sidebar():
     # Section-wise Question Palette with Direct Jump
     st.sidebar.markdown("---")
     st.sidebar.markdown("#### 🧩 Question Palette")
-    st.sidebar.markdown("<small style='color:#94a3b8;'>Click any question to jump directly</small>", unsafe_allow_html=True)
+    st.sidebar.markdown("<small style='color:#94a3b8;'>Click any number to jump directly</small>", unsafe_allow_html=True)
 
     sections = [
-        ("⚡ Physics", "Physics"),
-        ("🧪 Chemistry", "Chemistry"),
-        ("📐 Mathematics", "Mathematics")
+        ("⚡ Section 1: Physics", "Physics"),
+        ("🧪 Section 2: Chemistry", "Chemistry"),
+        ("📐 Section 3: Mathematics", "Mathematics")
     ]
 
     for label, subj in sections:
@@ -690,21 +681,9 @@ def render_timer_sidebar():
         for idx_in_subj, q_idx in enumerate(stats['indices']):
             col = cols[idx_in_subj % 4]
             is_current = (q_idx == st.session_state.current_q)
-            is_ans = (q_idx in st.session_state.answers)
-            is_rev = (q_idx in st.session_state.marked_review)
 
-            if is_current:
-                btn_label = f"▶{q_idx+1}"
-                btn_type = "primary"
-            elif is_rev:
-                btn_label = f"🟡{q_idx+1}"
-                btn_type = "secondary"
-            elif is_ans:
-                btn_label = f"🟢{q_idx+1}"
-                btn_type = "secondary"
-            else:
-                btn_label = f"⚪{q_idx+1}"
-                btn_type = "secondary"
+            btn_label = str(q_idx + 1)
+            btn_type = "primary" if is_current else "secondary"
 
             if col.button(btn_label, key=f"p_btn_{q_idx}", use_container_width=True, type=btn_type):
                 st.session_state.current_q = q_idx
@@ -745,16 +724,16 @@ def render_question_screen():
     st.markdown("### 📚 Test Sections")
     sec_cols = st.columns(3)
     sections_info = [
-        ("⚡ Physics", "Physics"),
-        ("🧪 Chemistry", "Chemistry"),
-        ("📐 Mathematics", "Mathematics")
+        ("⚡ Section 1: Physics (Q1–16)", "Physics"),
+        ("🧪 Section 2: Chemistry (Q17–32)", "Chemistry"),
+        ("📐 Section 3: Mathematics (Q33–45)", "Mathematics")
     ]
     curr_subj = q["subject"]
 
     for sc, (sec_title, sec_subj) in zip(sec_cols, sections_info):
         stats = section_stats[sec_subj]
         is_active_sec = (curr_subj == sec_subj)
-        tab_label = f"{sec_title} ({stats['total']} Qs | {stats['attempted']}/{stats['total']} Answered)"
+        tab_label = f"{sec_title}\n({stats['attempted']}/{stats['total']} Answered)"
         
         with sc:
             if st.button(
@@ -998,7 +977,7 @@ def render_result_screen():
 def render_subject_analysis(results):
     st.markdown('<div class="section-title">📊 Subject-wise Performance</div>', unsafe_allow_html=True)
 
-    for subj in ["Chemistry", "Physics", "Mathematics"]:
+    for subj in ["Physics", "Chemistry", "Mathematics"]:
         data = results["subject"][subj]
         total = data["total"]
         correct = data["correct"]
@@ -1034,7 +1013,7 @@ def render_chapter_analysis(results):
 
     import pandas as pd
 
-    for subj in ["Chemistry", "Physics", "Mathematics"]:
+    for subj in ["Physics", "Chemistry", "Mathematics"]:
         icon = {"Chemistry": "🧪", "Physics": "⚡", "Mathematics": "📐"}[subj]
         st.markdown(f"### {icon} {subj}")
 
@@ -1180,7 +1159,6 @@ def render_mistake_analysis(results):
 
     rows = []
     for mtype, count in counter.most_common():
-        # Extract the category from the distractor info string
         category = mtype.split(" — ")[0] if " — " in mtype else mtype
         rows.append({
             "Mistake Type": category,
@@ -1191,11 +1169,9 @@ def render_mistake_analysis(results):
     df = pd.DataFrame(rows)
     st.dataframe(df, use_container_width=True, hide_index=True)
 
-    # Most common mistake
     most_common = counter.most_common(1)[0]
     st.error(f"🔴 **Most common mistake type:** {most_common[0]} ({most_common[1]} occurrences)")
 
-    # Categorize
     st.markdown("---")
     st.markdown("#### Mistake Categories")
 
@@ -1235,7 +1211,6 @@ def render_negative_marking_analysis(results):
 
     st.markdown("")
 
-    # Attempt accuracy
     attempt_accuracy = (correct / attempted * 100) if attempted > 0 else 0
     st.markdown(f"**Attempt Accuracy:** {attempt_accuracy:.1f}%")
 
@@ -1257,7 +1232,6 @@ def render_negative_marking_analysis(results):
 
     st.markdown("---")
 
-    # Impact analysis
     score_without_neg = results["correct_marks"]
     penalty_impact = wrong_marks
     st.markdown(f"""
@@ -1279,7 +1253,6 @@ def render_negative_marking_analysis(results):
 def render_performance_report(results):
     st.markdown('<div class="section-title">📋 Final Performance Report</div>', unsafe_allow_html=True)
 
-    # Identify strong and weak topics
     strong_topics = []
     weak_topics = []
     revision_topics = []
@@ -1302,7 +1275,6 @@ def render_performance_report(results):
         if wrong > 0 or unattempted > 0:
             revision_topics.append((f"{topic_name} ({subj})", wrong + unattempted, accuracy))
 
-    # Strong areas
     st.markdown("### 💪 Strong Areas")
     if strong_topics:
         for t in strong_topics:
@@ -1312,7 +1284,6 @@ def render_performance_report(results):
 
     st.markdown("")
 
-    # Weak areas
     st.markdown("### ⚠️ Weak Areas")
     if weak_topics:
         for t in weak_topics:
@@ -1322,7 +1293,6 @@ def render_performance_report(results):
 
     st.markdown("")
 
-    # Priority revision
     st.markdown("### 📌 Priority Revision Topics")
     revision_sorted = sorted(revision_topics, key=lambda x: (-x[1], x[2]))
     for topic, issues, acc in revision_sorted[:8]:
@@ -1330,7 +1300,6 @@ def render_performance_report(results):
 
     st.markdown("")
 
-    # Specific recommendations
     st.markdown("### 📖 Recommended Practice")
 
     recommendations = []
@@ -1349,12 +1318,6 @@ def render_performance_report(results):
                 recommendations.append(f"Solve {wrong*5}+ Electrostatics problems covering Gauss's law, capacitor combinations, and potential energy of charge systems.")
             elif "Trigonometry" in topic_name:
                 recommendations.append(f"Practice {wrong*3}+ trigonometric equation problems and inverse trig function evaluations.")
-            elif "3D Geometry" in topic_name:
-                recommendations.append(f"Revise section formula, direction cosines, and practice {wrong*3}+ 3D geometry coordinate problems.")
-            elif "Reasoning" in topic_name:
-                recommendations.append(f"Review contrapositive, negation, and quantifier rules. Practice {wrong*3}+ logical reasoning problems.")
-            elif "Dimensions" in topic_name:
-                recommendations.append(f"Practice {wrong*3}+ dimensional analysis problems including finding dimensions of unknown quantities.")
             else:
                 recommendations.append(f"Revise {topic_name} concepts and solve {wrong*4}+ practice problems.")
 
@@ -1369,7 +1332,6 @@ def render_performance_report(results):
 
     st.markdown("---")
 
-    # Overall verdict
     score = results["score"]
     pct = results["percentage"]
 
