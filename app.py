@@ -753,6 +753,86 @@ def render_question_screen():
 
 
 # ══════════════════════════════════════════════════════════════
+# HTML DOWNLOAD GENERATOR
+# ══════════════════════════════════════════════════════════════
+
+def generate_download_html(results):
+    html = """<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>JEE Advanced Mock Test - Solution PDF</title>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\\\(', '\\\\)']]
+  }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 40px; max-width: 900px; margin: 0 auto; color: #1e293b; background: #f8fafc; }
+h1 { text-align: center; color: #1e3a8a; }
+.question { margin-bottom: 40px; padding: 25px; border: 1px solid #cbd5e1; border-radius: 8px; background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.q-title { font-weight: 700; margin-bottom: 15px; font-size: 1.1em; color: #2563eb; }
+.option { margin-bottom: 8px; }
+.correct-ans { color: #16a34a; font-weight: bold; }
+.user-ans { font-weight: bold; }
+.wrong { color: #dc2626; font-weight: bold; }
+.unattempted { color: #d97706; font-weight: bold; }
+.explanation { margin-top: 15px; padding: 15px; background: #f1f5f9; border-left: 4px solid #2563eb; border-radius: 4px; line-height: 1.6; }
+.stats { text-align: center; font-size: 1.2em; margin-bottom: 30px; font-weight: bold; background: #ffffff; padding: 20px; border-radius: 8px; border: 1px solid #cbd5e1;}
+</style>
+</head>
+<body>
+<h1>JEE Advanced Mock Test - Solutions</h1>
+<div class="stats">Total Score: {score} / {max_marks} | Accuracy: {accuracy}%</div>
+"""
+    html = html.replace("{score}", str(results['score']))
+    html = html.replace("{max_marks}", str(MAX_MARKS))
+    html = html.replace("{accuracy}", f"{results['accuracy']:.1f}")
+
+    for qr in results["question_results"]:
+        q = qr["question"]
+        idx = qr["index"]
+        status = qr["status"]
+        user_ans = qr["user_answer"]
+        correct_ans = q["answer"]
+        
+        user_color = "correct-ans" if status == "correct" else ("wrong" if status == "wrong" else "unattempted")
+        user_ans_text = f"Your Answer: {user_ans}" if user_ans else "Your Answer: Not Attempted"
+        
+        # Replace newlines in question/explanation with <br> for HTML rendering
+        q_text_html = str(q['question']).replace("\n", "<br/>")
+        exp_html = str(q['explanation']).replace("\n", "<br/>")
+
+        html += f"""
+<div class="question">
+    <div class="q-title">Q{idx+1}. ({q['subject']}) {q['topic']} [{q['difficulty']}]</div>
+    <div style="line-height:1.6; font-size:1.05em; margin-bottom:15px;">{q_text_html}</div>
+    <ul style="list-style-type:none; padding-left:0; margin-top:15px; margin-bottom: 20px;">
+"""
+        for k, v in q["options"].items():
+            opt_text = str(v).replace("\n", "<br/>")
+            html += f"        <li class='option'><b>{k})</b> {opt_text}</li>\n"
+            
+        html += f"""    </ul>
+    <div style="margin-top:20px; padding-top:15px; border-top:1px solid #e2e8f0;">
+        <span class="{user_color}">{user_ans_text}</span> <br/>
+        <span class="correct-ans">Correct Answer: {correct_ans}</span>
+    </div>
+    <div class="explanation">
+        <b>Explanation:</b><br/>
+        {exp_html}
+    </div>
+</div>
+"""
+    
+    html += "</body></html>"
+    return html
+
+
+# ══════════════════════════════════════════════════════════════
 # RESULT SCREEN
 # ══════════════════════════════════════════════════════════════
 
@@ -771,6 +851,19 @@ def render_result_screen():
         <div class="result-max">out of {MAX_MARKS}</div>
     </div>
     """, unsafe_allow_html=True)
+
+    c1, c2, c3 = st.columns([1, 2, 1])
+    with c2:
+        html_content = generate_download_html(results)
+        st.download_button(
+            label="📄 Download Test Solutions (HTML)",
+            data=html_content,
+            file_name="JEE_Mock_Test_Solutions.html",
+            mime="text/html",
+            use_container_width=True,
+            type="primary"
+        )
+    st.markdown("<br>", unsafe_allow_html=True)
 
     # ── Key metrics ──────────────────────────────────────────
     st.markdown(f"""
