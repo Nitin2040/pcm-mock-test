@@ -42,38 +42,42 @@ QUESTIONS = load_questions()
 def inject_css():
     st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     :root {
-        --bg-primary: #0a0e1a;
-        --bg-card: #111827;
-        --bg-card-hover: #1a2236;
-        --accent: #6366f1;
-        --accent-glow: rgba(99,102,241,0.35);
-        --green: #10b981;
-        --red: #ef4444;
-        --yellow: #f59e0b;
-        --blue: #3b82f6;
-        --cyan: #06b6d4;
-        --text-primary: #f1f5f9;
-        --text-secondary: #94a3b8;
-        --border: #1e293b;
+        --bg-primary: #f8fafc;
+        --bg-card: #ffffff;
+        --bg-card-hover: #f1f5f9;
+        --accent: #2563eb;
+        --accent-glow: rgba(37,99,235,0.1);
+        --green: #16a34a;
+        --red: #dc2626;
+        --yellow: #d97706;
+        --blue: #2563eb;
+        --cyan: #0891b2;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --border: #e2e8f0;
     }
 
     html, body, [class*="st-"] {
         font-family: 'Inter', sans-serif;
+        color: var(--text-primary);
     }
 
     /* Start screen */
     .hero-title {
-        font-size: 3rem;
-        font-weight: 900;
-        background: linear-gradient(135deg, #818cf8, #6366f1, #4f46e5);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1e3a8a;
         text-align: center;
         margin-bottom: 0.5rem;
-        letter-spacing: -1px;
+        border-bottom: 3px solid var(--accent);
+        display: inline-block;
+        padding-bottom: 8px;
+    }
+    .hero-container {
+        text-align: center;
     }
     .hero-subtitle {
         text-align: center;
@@ -90,26 +94,22 @@ def inject_css():
     .info-card {
         background: var(--bg-card);
         border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 20px;
+        border-radius: 8px;
+        padding: 16px;
         text-align: center;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .info-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .info-card .label {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         color: var(--text-secondary);
         text-transform: uppercase;
-        letter-spacing: 1px;
+        font-weight: 600;
         margin-bottom: 6px;
     }
     .info-card .value {
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: var(--accent);
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
     }
     .info-card .value.green { color: var(--green); }
     .info-card .value.red { color: var(--red); }
@@ -119,39 +119,39 @@ def inject_css():
     .question-card {
         background: var(--bg-card);
         border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 28px 32px;
+        border-radius: 8px;
+        padding: 24px;
         margin: 16px 0;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .q-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 16px;
-        flex-wrap: wrap;
-        gap: 8px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 12px;
     }
     .q-number {
-        font-size: 1.15rem;
-        font-weight: 800;
-        color: var(--accent);
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
     }
     .q-badge {
         display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
+        padding: 4px 10px;
+        border-radius: 4px;
         font-size: 0.75rem;
         font-weight: 600;
-        letter-spacing: 0.5px;
+        text-transform: uppercase;
     }
-    .badge-physics    { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
-    .badge-chemistry  { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
-    .badge-mathematics{ background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .badge-physics    { background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; }
+    .badge-chemistry  { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
+    .badge-mathematics{ background: #fef3c7; color: #d97706; border: 1px solid #fde68a; }
 
     .q-text {
         font-size: 1.05rem;
-        line-height: 1.7;
+        line-height: 1.6;
         color: var(--text-primary);
         margin-bottom: 20px;
         white-space: pre-wrap;
@@ -161,19 +161,19 @@ def inject_css():
     .result-hero {
         text-align: center;
         padding: 32px;
-        background: linear-gradient(135deg, #1e1b4b, #312e81);
-        border-radius: 20px;
-        border: 1px solid rgba(99,102,241,0.3);
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid var(--border);
         margin-bottom: 24px;
     }
     .result-score {
-        font-size: 4rem;
-        font-weight: 900;
-        color: #e0e7ff;
+        font-size: 3.5rem;
+        font-weight: 800;
+        color: var(--accent);
     }
     .result-max {
         font-size: 1.5rem;
-        color: #a5b4fc;
+        color: var(--text-secondary);
     }
     .stat-grid {
         display: grid;
@@ -184,19 +184,19 @@ def inject_css():
     .stat-card {
         background: var(--bg-card);
         border: 1px solid var(--border);
-        border-radius: 12px;
+        border-radius: 8px;
         padding: 16px;
         text-align: center;
     }
     .stat-label {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         color: var(--text-secondary);
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 1px;
     }
     .stat-value {
-        font-size: 1.6rem;
-        font-weight: 800;
+        font-size: 1.5rem;
+        font-weight: 700;
         margin-top: 4px;
     }
     .sv-green  { color: var(--green); }
@@ -208,26 +208,26 @@ def inject_css():
 
     /* Explanation box */
     .explanation-box {
-        background: rgba(99,102,241,0.08);
+        background: #f1f5f9;
         border-left: 4px solid var(--accent);
-        border-radius: 0 12px 12px 0;
-        padding: 16px 20px;
+        border-radius: 0 4px 4px 0;
+        padding: 16px;
         margin-top: 12px;
-        font-size: 0.92rem;
-        line-height: 1.7;
+        font-size: 0.95rem;
+        line-height: 1.6;
         color: var(--text-primary);
         white-space: pre-wrap;
     }
 
     /* Section title */
     .section-title {
-        font-size: 1.3rem;
-        font-weight: 800;
+        font-size: 1.25rem;
+        font-weight: 700;
         color: var(--text-primary);
-        margin: 32px 0 16px 0;
+        margin: 24px 0 16px 0;
         padding-bottom: 8px;
-        border-bottom: 2px solid var(--accent);
-        display: inline-block;
+        border-bottom: 2px solid var(--border);
+        display: block;
     }
 
     /* Hide Streamlit branding */
@@ -238,11 +238,14 @@ def inject_css():
     div.stButton > button {
         font-family: 'Inter', sans-serif;
         font-weight: 600;
-        border-radius: 8px;
+        border-radius: 4px;
         padding: 6px 14px;
-        transition: all 0.2s;
+        transition: background-color 0.2s;
     }
     </style>
+    <div class="hero-container">
+        <div class="hero-title">JEE Advanced Mock Test</div>
+    </div>
     """, unsafe_allow_html=True)
 
 
@@ -437,18 +440,18 @@ def render_timer_sidebar():
         font-family: 'Inter', sans-serif;
       }}
       .timer-box {{
-        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-        border: 1px solid rgba(99,102,241,0.35);
-        border-radius: 14px;
+        background: #ffffff;
+        border: 2px solid #2563eb;
+        border-radius: 8px;
         padding: 12px 16px;
         text-align: center;
-        box-shadow: 0 0 20px rgba(99,102,241,0.25);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
       }}
       .timer-lbl {{
         font-size: 11px;
-        font-weight: 600;
+        font-weight: 700;
         letter-spacing: 1.5px;
-        color: #a5b4fc;
+        color: #475569;
         text-transform: uppercase;
         margin-bottom: 4px;
       }}
@@ -456,10 +459,10 @@ def render_timer_sidebar():
         font-size: 32px;
         font-weight: 800;
         font-variant-numeric: tabular-nums;
-        color: #e0e7ff;
+        color: #1e293b;
         letter-spacing: 2px;
       }}
-      .warn {{ color: #fbbf24 !important; }}
+      .warn {{ color: #d97706 !important; }}
       .danger {{ color: #f87171 !important; animation: pulse 1s infinite; }}
       @keyframes pulse {{
         0%, 100% {{ opacity: 1; }}
@@ -523,6 +526,7 @@ def render_timer_sidebar():
 
     st.sidebar.markdown("---")
     st.sidebar.markdown("#### 🧩 Question Palette")
+    st.sidebar.markdown("<small>🟢 Ans | ⚪ Unans | 🟣 Review | 📍 Current</small>", unsafe_allow_html=True)
 
     curr_idx = st.session_state.current_q
     curr_subj = QUESTIONS[curr_idx]["subject"]
@@ -552,8 +556,24 @@ def render_timer_sidebar():
             for col_idx, q_idx in enumerate(row_indices):
                 sec_q_num = row_start + col_idx + 1  # 1 to 16 in Physics/Chem, 1 to 13 in Math
                 is_current_q = (q_idx == curr_idx)
+                
+                # Determine status emoji
+                is_answered = q_idx in st.session_state.answers
+                is_marked = q_idx in st.session_state.marked_review
+                
+                if is_marked and is_answered:
+                    status = "🟣✓"
+                elif is_marked:
+                    status = "🟣"
+                elif is_answered:
+                    status = "🟢"
+                else:
+                    status = "⚪"
+                
+                if is_current_q:
+                    status = "📍"
 
-                btn_label = str(sec_q_num)
+                btn_label = f"{sec_q_num} {status}"
                 btn_type = "primary" if is_current_q else "secondary"
 
                 # Use 100% unique key for every single button to eliminate cross-section click collision
