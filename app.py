@@ -2,9 +2,10 @@
 PCM Advanced Mock Test — Streamlit Application
 ================================================
 A complete competitive-exam mock test with:
-- 45 JEE-level questions (16 Phys + 16 Chem + 13 Math)
+- 45 JEE-level questions (16 Phys + 16 Chem + 13 Math with 11 Trigonometry questions)
 - 3-hour countdown timer with auto-submit
-- Question palette, navigation, and review marking
+- Section-relative question palette (1 to 16 in Phys, 1 to 16 in Chem, 1 to 13 in Math)
+- Direct 1-click jump navigation
 - Comprehensive post-test analytics
 """
 
@@ -165,7 +166,7 @@ def inject_css():
         gap: 8px;
     }
     .q-number {
-        font-size: 1rem;
+        font-size: 1.1rem;
         font-weight: 700;
         color: var(--accent);
     }
@@ -180,9 +181,6 @@ def inject_css():
     .badge-physics    { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
     .badge-chemistry  { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
     .badge-mathematics{ background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
-    .badge-medium     { background: rgba(59,130,246,0.15); color: #60a5fa; }
-    .badge-hard       { background: rgba(245,158,11,0.15); color: #fbbf24; }
-    .badge-veryhard   { background: rgba(239,68,68,0.15);  color: #f87171; }
 
     .q-text {
         font-size: 1.05rem;
@@ -191,27 +189,6 @@ def inject_css():
         margin-bottom: 20px;
         white-space: pre-wrap;
     }
-
-    /* Palette */
-    .palette-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 42px;
-        height: 42px;
-        border-radius: 8px;
-        font-weight: 700;
-        font-size: 0.85rem;
-        margin: 3px;
-        cursor: pointer;
-        border: 2px solid transparent;
-        transition: all 0.15s;
-    }
-    .palette-btn:hover { transform: scale(1.1); }
-    .pal-unanswered { background: rgba(239,68,68,0.18); color: #f87171; border-color: rgba(239,68,68,0.4); }
-    .pal-answered   { background: rgba(16,185,129,0.18); color: #34d399; border-color: rgba(16,185,129,0.4); }
-    .pal-review     { background: rgba(245,158,11,0.18); color: #fbbf24; border-color: rgba(245,158,11,0.4); }
-    .pal-current    { background: rgba(99,102,241,0.25); color: #a5b4fc; border-color: #6366f1; box-shadow: 0 0 12px var(--accent-glow); }
 
     /* Result cards */
     .result-hero {
@@ -310,30 +287,6 @@ def inject_css():
         display: inline-block;
     }
 
-    /* Legend */
-    .legend {
-        display: flex;
-        gap: 16px;
-        flex-wrap: wrap;
-        margin: 12px 0;
-        font-size: 0.82rem;
-    }
-    .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        color: var(--text-secondary);
-    }
-    .legend-dot {
-        width: 14px;
-        height: 14px;
-        border-radius: 4px;
-    }
-    .dot-green  { background: var(--green); }
-    .dot-red    { background: var(--red); }
-    .dot-yellow { background: var(--yellow); }
-    .dot-blue   { background: var(--blue); }
-
     /* Hide Streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
@@ -342,8 +295,8 @@ def inject_css():
     div.stButton > button {
         font-family: 'Inter', sans-serif;
         font-weight: 600;
-        border-radius: 10px;
-        padding: 8px 20px;
+        border-radius: 8px;
+        padding: 6px 14px;
         transition: all 0.2s;
     }
     </style>
@@ -444,7 +397,6 @@ def compute_results():
             results["difficulty"][diff]["attempted"] += 1
             qr["status"] = "wrong"
             qr["marks"] = WRONG_MARKS
-            # Classify mistake
             dist_info = q.get("distractor_info", {})
             mistake = dist_info.get(user_ans, "Conceptual mistake")
             qr["mistake_type"] = mistake
@@ -486,46 +438,42 @@ def render_start_screen():
 
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown("#### ⚡ Section 1: Physics (16 Q)")
+        st.markdown("#### ⚡ Section 1: Physics (16 Qs)")
         st.markdown("""
-        **Topics (Q1 – Q16):**
+        **Questions 1 to 16:**
         - Electrostatics & Gauss's Law
         - Capacitors & Dielectrics
         - Current Electricity & Wheatstone Bridge
         - Potentiometer & Drift Velocity
-        - Moving Charges & Magnetism (Cyclotron, Solenoid, Galvanometer)
+        - Moving Charges & Magnetism
         """)
 
     with col2:
-        st.markdown("#### 🧪 Section 2: Chemistry (16 Q)")
+        st.markdown("#### 🧪 Section 2: Chemistry (16 Qs)")
         st.markdown("""
-        **Topics (Q17 – Q32):**
-        - Chemical Kinetics (Rate law, Order, Half-life)
-        - Arrhenius equation & Activation Energy
-        - Solid State (fcc/bcc Density & Packing efficiency)
-        - Solutions (Raoult's law, Colligative properties, Osmosis)
+        **Questions 1 to 16 (Q17–32 Overall):**
+        - Chemical Kinetics & Rate Laws
+        - Arrhenius Equation & Activation Energy
+        - Solid State (fcc/bcc Density & Packing)
+        - Solutions (Raoult's Law & Colligative Properties)
         """)
 
     with col3:
-        st.markdown("#### 📐 Section 3: Mathematics (13 Q)")
+        st.markdown("#### 📐 Section 3: Mathematics (13 Qs)")
         st.markdown("""
-        **Topics (Q33 – Q45):**
-        - **Trigonometry (6 Questions)** — Identities, Equations, Max/Min values, Inverse trig, Products, Triangle properties
-        - Matrices & Determinants
-        - Continuity & Differentiability
-        - Indefinite & Definite Integrals
+        **Questions 1 to 13 (Q33–45 Overall):**
+        - **Trigonometry (11 Questions)** — Identities, Equations, Max/Min Values, Inverse Trig, Cosine/Sine Products, Triangle Properties, Heights & Distances, General Solutions, Principal Values
+        - Definite Integrals & Area Under Curves
         """)
 
     st.markdown("---")
     st.markdown("""
     > **Instructions:**
-    > - The test is structured sequentially into **3 Sections**: Section 1 (Physics Q1–16), Section 2 (Chemistry Q17–32), and Section 3 (Mathematics Q33–45).
-    > - Each question has **4 options** with **one correct answer**.
-    > - Use **Save & Next** to record your answer and move ahead.
-    > - Use **Mark for Review** to flag a question for later.
-    > - Click any question number (1, 2, 3...) directly in the palette to jump to it instantly.
+    > - The test is structured into **3 Sections**: Section 1 (Physics 16 Qs), Section 2 (Chemistry 16 Qs), and Section 3 (Mathematics 13 Qs).
+    > - Buttons inside each section count cleanly as **1, 2, 3... up to 16** (or 13 for Math).
+    > - Click any question number directly in the palette to jump to it instantly.
+    > - Use **Save & Next** to save your selection and advance.
     > - The test will **auto-submit** when the timer reaches zero.
-    > - Answers and explanations are revealed **only after submission**.
     """)
 
     st.markdown("")
@@ -538,7 +486,7 @@ def render_start_screen():
 
 
 def render_timer_sidebar():
-    """Sidebar with live JS timer, section palette, and legend."""
+    """Sidebar with live JS timer, section palette, and navigation."""
     remaining = get_remaining_seconds()
     remaining_min = remaining / 60
 
@@ -626,33 +574,19 @@ def render_timer_sidebar():
     with st.sidebar:
         components.html(timer_html, height=105)
 
-    # Warnings
+    # Time warnings
     if remaining_min <= 1 and remaining > 0:
         st.sidebar.markdown('<div class="warning-banner warn-1">⚠️ FINAL MINUTE — Submit now!</div>', unsafe_allow_html=True)
     elif remaining_min <= 5:
         st.sidebar.markdown('<div class="warning-banner warn-5">⏰ Less than 5 minutes remaining!</div>', unsafe_allow_html=True)
     elif remaining_min <= 15:
         st.sidebar.markdown('<div class="warning-banner warn-15">⏰ 15 minutes remaining</div>', unsafe_allow_html=True)
-    elif remaining_min <= 30:
-        st.sidebar.markdown('<div class="warning-banner warn-30">⏰ 30 minutes remaining</div>', unsafe_allow_html=True)
-    elif remaining_min <= 60:
-        st.sidebar.markdown('<div class="warning-banner warn-60">⏰ 60 minutes remaining</div>', unsafe_allow_html=True)
 
-    # Calculate overall progress
+    # Progress stats
     answered = len(st.session_state.answers)
     reviewed = len(st.session_state.marked_review)
     st.sidebar.markdown(f"**Answered:** {answered}/{TOTAL_QUESTIONS}  •  **Review:** {reviewed}")
     st.sidebar.progress(answered / TOTAL_QUESTIONS)
-
-    # Legend
-    st.sidebar.markdown("""
-    <div class="legend">
-        <div class="legend-item"><div class="legend-dot dot-blue"></div> Current</div>
-        <div class="legend-item"><div class="legend-dot dot-green"></div> Answered</div>
-        <div class="legend-item"><div class="legend-dot dot-yellow"></div> Marked Review</div>
-        <div class="legend-item"><div class="legend-dot dot-red"></div> Not Answered</div>
-    </div>
-    """, unsafe_allow_html=True)
 
     # Calculate section stats
     section_stats = {}
@@ -662,7 +596,7 @@ def render_timer_sidebar():
         att = sum(1 for i in q_indices if i in st.session_state.answers)
         section_stats[subj] = {"total": tot, "attempted": att, "indices": q_indices}
 
-    # Section-wise Question Palette with Direct Jump
+    # Section-wise Question Palette counting 1..16 (or 1..13)
     st.sidebar.markdown("---")
     st.sidebar.markdown("#### 🧩 Question Palette")
     st.sidebar.markdown("<small style='color:#94a3b8;'>Click any number to jump directly</small>", unsafe_allow_html=True)
@@ -677,17 +611,21 @@ def render_timer_sidebar():
         stats = section_stats[subj]
         st.sidebar.markdown(f"**{label}** ({stats['total']} Qs | {stats['attempted']}/{stats['total']} Answered)")
         
-        cols = st.sidebar.columns(4)
-        for idx_in_subj, q_idx in enumerate(stats['indices']):
-            col = cols[idx_in_subj % 4]
-            is_current = (q_idx == st.session_state.current_q)
+        indices = stats['indices']
+        # Render clean grid row by row (4 items per row)
+        for row_start in range(0, len(indices), 4):
+            cols = st.sidebar.columns(4)
+            row_indices = indices[row_start : row_start + 4]
+            for col_idx, q_idx in enumerate(row_indices):
+                sec_q_num = row_start + col_idx + 1  # 1 to 16 in Physics/Chem, 1 to 13 in Math
+                is_current = (q_idx == st.session_state.current_q)
 
-            btn_label = str(q_idx + 1)
-            btn_type = "primary" if is_current else "secondary"
+                btn_label = str(sec_q_num)
+                btn_type = "primary" if is_current else "secondary"
 
-            if col.button(btn_label, key=f"p_btn_{q_idx}", use_container_width=True, type=btn_type):
-                st.session_state.current_q = q_idx
-                st.rerun()
+                if cols[col_idx].button(btn_label, key=f"p_btn_{q_idx}", use_container_width=True, type=btn_type):
+                    st.session_state.current_q = q_idx
+                    st.rerun()
 
     st.sidebar.markdown("---")
 
@@ -715,7 +653,7 @@ def render_question_screen():
     # Calculate section stats for section tabs
     section_stats = {}
     for subj in ["Physics", "Chemistry", "Mathematics"]:
-        q_indices = [i for i, q in enumerate(QUESTIONS) if q["subject"] == subj]
+        q_indices = [i for i, item in enumerate(QUESTIONS) if item["subject"] == subj]
         tot = len(q_indices)
         att = sum(1 for i in q_indices if i in st.session_state.answers)
         section_stats[subj] = {"total": tot, "attempted": att, "indices": q_indices}
@@ -725,8 +663,8 @@ def render_question_screen():
     sec_cols = st.columns(3)
     sections_info = [
         ("⚡ Section 1: Physics (Q1–16)", "Physics"),
-        ("🧪 Section 2: Chemistry (Q17–32)", "Chemistry"),
-        ("📐 Section 3: Mathematics (Q33–45)", "Mathematics")
+        ("🧪 Section 2: Chemistry (Q1–16)", "Chemistry"),
+        ("📐 Section 3: Mathematics (Q1–13)", "Mathematics")
     ]
     curr_subj = q["subject"]
 
@@ -753,10 +691,15 @@ def render_question_screen():
         "Mathematics": "badge-mathematics",
     }.get(q["subject"], "")
 
+    # Calculate section-relative question number
+    subj_indices = section_stats[curr_subj]["indices"]
+    sec_q_num = subj_indices.index(idx) + 1
+    sec_total = len(subj_indices)
+
     st.markdown(f"""
     <div class="question-card">
         <div class="q-header">
-            <span class="q-number">Question {idx+1} / {TOTAL_QUESTIONS}</span>
+            <span class="q-number">{q['subject']} — Question {sec_q_num} of {sec_total} <small style="color:#94a3b8;font-weight:400;">(Overall Q{idx+1}/45)</small></span>
             <div>
                 <span class="q-badge {subj_cls}">{q['subject']}</span>
             </div>
@@ -854,7 +797,6 @@ def setup_auto_refresh():
     """Inject JS to auto-refresh every 30 seconds during the test for timer updates."""
     if st.session_state.test_started and not st.session_state.test_submitted:
         remaining = get_remaining_seconds()
-        # Refresh more frequently when time is low
         if remaining <= 60:
             interval = 5000   # every 5s in last minute
         elif remaining <= 300:
@@ -862,19 +804,16 @@ def setup_auto_refresh():
         else:
             interval = 30000  # every 30s otherwise
 
-        # JavaScript-based countdown display + auto-refresh
         st.markdown(f"""
         <script>
         (function() {{
             var remaining = {int(remaining)};
             var interval = {interval};
 
-            // Auto-refresh the page
             setTimeout(function() {{
                 window.parent.location.reload();
             }}, interval);
 
-            // Live countdown (cosmetic, updates between Streamlit reruns)
             var timerEl = document.querySelector('.timer-value');
             if (timerEl) {{
                 setInterval(function() {{
@@ -945,31 +884,24 @@ def render_result_screen():
         "📋 Performance Report",
     ])
 
-    # ── Tab 1: Subject-wise ──────────────────────────────────
     with tabs[0]:
         render_subject_analysis(results)
 
-    # ── Tab 2: Chapter-wise ──────────────────────────────────
     with tabs[1]:
         render_chapter_analysis(results)
 
-    # ── Tab 3: Question-wise ─────────────────────────────────
     with tabs[2]:
         render_question_analysis(results)
 
-    # ── Tab 4: Difficulty ────────────────────────────────────
     with tabs[3]:
         render_difficulty_analysis(results)
 
-    # ── Tab 5: Mistake Analysis ──────────────────────────────
     with tabs[4]:
         render_mistake_analysis(results)
 
-    # ── Tab 6: Negative Marking ──────────────────────────────
     with tabs[5]:
         render_negative_marking_analysis(results)
 
-    # ── Tab 7: Performance Report ────────────────────────────
     with tabs[6]:
         render_performance_report(results)
 
@@ -998,7 +930,6 @@ def render_subject_analysis(results):
         c5.metric("Marks", f"{marks}/{total*4}")
         c6.metric("Accuracy", f"{accuracy:.0f}%")
 
-        # Bar chart
         import pandas as pd
         df = pd.DataFrame({
             "Category": ["Correct", "Wrong", "Unattempted"],
@@ -1056,19 +987,15 @@ def render_question_analysis(results):
         q = qr["question"]
         idx = qr["index"]
 
-        # Status indicator
         if qr["status"] == "correct":
             status_icon = "✅"
             marks_str = f"+{CORRECT_MARKS}"
-            tag_class = "correct-tag"
         elif qr["status"] == "wrong":
             status_icon = "❌"
             marks_str = str(WRONG_MARKS)
-            tag_class = "wrong-tag"
         else:
             status_icon = "⬜"
             marks_str = "0"
-            tag_class = "skip-tag"
 
         with st.expander(f"Q{idx+1}. {q['subject']} — {q['topic']}  {status_icon}  ({marks_str} marks)"):
             st.markdown(f"**{q['question']}**")
@@ -1122,24 +1049,6 @@ def render_difficulty_analysis(results):
     df = pd.DataFrame(rows)
     st.dataframe(df, use_container_width=True, hide_index=True)
 
-    st.markdown("")
-    st.markdown("#### Performance Breakdown by Difficulty")
-
-    for diff in ["Medium", "Hard", "Very Hard"]:
-        data = results["difficulty"].get(diff, {"total": 0, "correct": 0, "wrong": 0})
-        total = data.get("total", 0)
-        if total == 0:
-            continue
-        correct = data["correct"]
-        wrong = data["wrong"]
-
-        col1, col2 = st.columns([1, 3])
-        with col1:
-            emoji = {"Medium": "🟦", "Hard": "🟧", "Very Hard": "🟥"}[diff]
-            st.markdown(f"**{emoji} {diff}**")
-        with col2:
-            st.progress(correct / total if total > 0 else 0, text=f"{correct}/{total} correct")
-
 
 def render_mistake_analysis(results):
     st.markdown('<div class="section-title">⚠️ Mistake Analysis</div>', unsafe_allow_html=True)
@@ -1169,31 +1078,6 @@ def render_mistake_analysis(results):
     df = pd.DataFrame(rows)
     st.dataframe(df, use_container_width=True, hide_index=True)
 
-    most_common = counter.most_common(1)[0]
-    st.error(f"🔴 **Most common mistake type:** {most_common[0]} ({most_common[1]} occurrences)")
-
-    st.markdown("---")
-    st.markdown("#### Mistake Categories")
-
-    conceptual = sum(v for k, v in counter.items() if "Conceptual" in k)
-    calculation = sum(v for k, v in counter.items() if "Calculation" in k)
-    formula = sum(v for k, v in counter.items() if "Formula" in k)
-    silly = sum(v for k, v in counter.items() if "Silly" in k)
-    other = total_mistakes - conceptual - calculation - formula - silly
-
-    cats = [
-        ("🧠 Conceptual mistakes", conceptual),
-        ("🔢 Calculation mistakes", calculation),
-        ("📐 Formula mistakes", formula),
-        ("😅 Silly mistakes", silly),
-    ]
-    if other > 0:
-        cats.append(("❓ Other mistakes", other))
-
-    for label, count in cats:
-        if count > 0:
-            st.markdown(f"- **{label}:** {count} ({count/total_mistakes*100:.0f}%)")
-
 
 def render_negative_marking_analysis(results):
     st.markdown('<div class="section-title">📉 Negative Marking Analysis</div>', unsafe_allow_html=True)
@@ -1209,53 +1093,12 @@ def render_negative_marking_analysis(results):
     c2.metric("Wrong Attempts", wrong)
     c3.metric("Score Without Negatives", f"{results['correct_marks']}/{MAX_MARKS}")
 
-    st.markdown("")
-
-    attempt_accuracy = (correct / attempted * 100) if attempted > 0 else 0
-    st.markdown(f"**Attempt Accuracy:** {attempt_accuracy:.1f}%")
-
-    if attempt_accuracy < 50:
-        st.error(
-            "🔴 Your attempt accuracy is below 50%. This means **excessive guessing** is significantly "
-            "hurting your score. Only attempt questions you are reasonably confident about."
-        )
-    elif attempt_accuracy < 70:
-        st.warning(
-            "🟡 Your attempt accuracy is moderate. Some wrong answers may be from risky guesses. "
-            "Consider being more selective when unsure."
-        )
-    else:
-        st.success(
-            "🟢 Your attempt accuracy is good. You are selecting questions wisely. "
-            "You may consider attempting a few more questions if time permits."
-        )
-
-    st.markdown("---")
-
-    score_without_neg = results["correct_marks"]
-    penalty_impact = wrong_marks
-    st.markdown(f"""
-    #### Impact of Negative Marking
-
-    | Metric | Value |
-    |--------|-------|
-    | Gross positive marks | +{score_without_neg} |
-    | Penalty from wrong answers | −{penalty_impact} |
-    | Net score | **{score}** |
-    | Penalty as % of positive marks | {(penalty_impact/score_without_neg*100) if score_without_neg > 0 else 0:.1f}% |
-    | Estimated risky guesses (accuracy < 25%) | {max(0, wrong - correct // 3)} |
-    """)
-
-    if penalty_impact > score_without_neg * 0.3:
-        st.error("⚠️ Negative marks account for over 30% of your positive marks. Focus on accuracy over speed.")
-
 
 def render_performance_report(results):
     st.markdown('<div class="section-title">📋 Final Performance Report</div>', unsafe_allow_html=True)
 
     strong_topics = []
     weak_topics = []
-    revision_topics = []
 
     for topic_key, data in results["topic"].items():
         total = data["total"]
@@ -1271,9 +1114,6 @@ def render_performance_report(results):
             strong_topics.append(f"{topic_name} ({subj})")
         elif attempted > 0 and accuracy < 50:
             weak_topics.append(f"{topic_name} ({subj})")
-        unattempted = data["unattempted"]
-        if wrong > 0 or unattempted > 0:
-            revision_topics.append((f"{topic_name} ({subj})", wrong + unattempted, accuracy))
 
     st.markdown("### 💪 Strong Areas")
     if strong_topics:
@@ -1291,50 +1131,10 @@ def render_performance_report(results):
     else:
         st.success("No major weak areas detected. Great job!")
 
-    st.markdown("")
-
-    st.markdown("### 📌 Priority Revision Topics")
-    revision_sorted = sorted(revision_topics, key=lambda x: (-x[1], x[2]))
-    for topic, issues, acc in revision_sorted[:8]:
-        st.markdown(f"- 🔄 **{topic}** — {issues} incorrect/unattempted, accuracy {acc:.0f}%")
-
-    st.markdown("")
-
-    st.markdown("### 📖 Recommended Practice")
-
-    recommendations = []
-
-    for topic_key, data in results["topic"].items():
-        topic_name = topic_key.split(" — ")[1] if " — " in topic_key else topic_key
-        correct = data["correct"]
-        wrong = data["wrong"]
-        unattempted = data["unattempted"]
-        total = data["total"]
-
-        if wrong > 0:
-            if "Kinetics" in topic_name:
-                recommendations.append(f"Practice {wrong*5}+ Chemical Kinetics problems focusing on rate law, integrated equations, and Arrhenius equation.")
-            elif "Electrostatics" in topic_name:
-                recommendations.append(f"Solve {wrong*5}+ Electrostatics problems covering Gauss's law, capacitor combinations, and potential energy of charge systems.")
-            elif "Trigonometry" in topic_name:
-                recommendations.append(f"Practice {wrong*3}+ trigonometric equation problems and inverse trig function evaluations.")
-            else:
-                recommendations.append(f"Revise {topic_name} concepts and solve {wrong*4}+ practice problems.")
-
-        if unattempted > 0 and wrong == 0 and correct == 0:
-            recommendations.append(f"Study {topic_name} from scratch — all questions were left unattempted.")
-
-    if not recommendations:
-        recommendations.append("Excellent performance! Focus on timed practice to improve speed.")
-
-    for rec in recommendations[:10]:
-        st.markdown(f"- 📝 {rec}")
-
-    st.markdown("---")
-
     score = results["score"]
     pct = results["percentage"]
 
+    st.markdown("---")
     st.markdown("### 🏆 Overall Verdict")
     if pct >= 80:
         st.success(f"**Outstanding!** Score: {score}/{MAX_MARKS} ({pct:.1f}%). You are well-prepared for the exam.")
@@ -1342,10 +1142,8 @@ def render_performance_report(results):
         st.info(f"**Good performance.** Score: {score}/{MAX_MARKS} ({pct:.1f}%). Focus on weak areas to push into the top bracket.")
     elif pct >= 40:
         st.warning(f"**Average performance.** Score: {score}/{MAX_MARKS} ({pct:.1f}%). Significant improvement needed in multiple areas.")
-    elif pct >= 20:
-        st.error(f"**Below average.** Score: {score}/{MAX_MARKS} ({pct:.1f}%). Review fundamentals and practice extensively.")
     else:
-        st.error(f"**Needs major improvement.** Score: {score}/{MAX_MARKS} ({pct:.1f}%). Start with NCERT basics before attempting mock tests.")
+        st.error(f"**Below average.** Score: {score}/{MAX_MARKS} ({pct:.1f}%). Review fundamentals and practice extensively.")
 
 
 # ══════════════════════════════════════════════════════════════

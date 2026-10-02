@@ -1,16 +1,15 @@
 """
 PCM Advanced Mock Test - Question Bank
 =======================================
-45 Questions organized strictly in proper sequential sections:
+45 Questions organized strictly into 3 sequential sections:
 - SECTION 1: Physics (Questions 1 to 16)
 - SECTION 2: Chemistry (Questions 17 to 32)
-- SECTION 3: Mathematics (Questions 33 to 45, featuring expanded Trigonometry)
+- SECTION 3: Mathematics (Questions 33 to 45, featuring 11 Trigonometry questions)
 """
 
 QUESTIONS = [
     # ═══════════════════════════════════════════════════════════
-    # SECTION 1: PHYSICS (Q1 to Q16)
-    # Topics: Electrostatics, Current Electricity, Magnetism
+    # SECTION 1: PHYSICS (Questions 1 to 16)
     # ═══════════════════════════════════════════════════════════
     {
         "id": 1,
@@ -468,8 +467,7 @@ QUESTIONS = [
     },
 
     # ═══════════════════════════════════════════════════════════
-    # SECTION 2: CHEMISTRY (Q17 to Q32)
-    # Topics: Chemical Kinetics, Solid State, Solutions
+    # SECTION 2: CHEMISTRY (Questions 17 to 32)
     # ═══════════════════════════════════════════════════════════
     {
         "id": 17,
@@ -909,9 +907,8 @@ QUESTIONS = [
     },
 
     # ═══════════════════════════════════════════════════════════
-    # SECTION 3: MATHEMATICS (Q33 to Q45)
-    # Topics: Trigonometry (6 Qs), Matrices & Determinants,
-    #         Continuity & Differentiability, Integrals
+    # SECTION 3: MATHEMATICS (Questions 33 to 45)
+    # Featuring 11 High-Yield Trigonometry Questions!
     # ═══════════════════════════════════════════════════════════
     {
         "id": 33,
@@ -952,12 +949,12 @@ QUESTIONS = [
             "The number of solutions of the trigonometric equation sin x + cos x = 1 in the interval [0, 2π] is:"
         ),
         "options": {
-            "A": "2",
-            "B": "3",
+            "A": "3",
+            "B": "2",
             "C": "1",
             "D": "4"
         },
-        "answer": "B",
+        "answer": "A",
         "explanation": (
             "Divide by √2: (1/√2) sin x + (1/√2) cos x = 1 / √2.\n"
             "sin(x + π/4) = 1 / √2 = sin(π/4).\n"
@@ -969,7 +966,7 @@ QUESTIONS = [
             "Hence there are 3 solutions."
         ),
         "distractor_info": {
-            "A": "Missed the boundary solution x = 2π",
+            "B": "Missed the boundary solution x = 2π",
             "C": "Only found x = 0",
             "D": "Included an out-of-interval solution"
         }
@@ -1085,135 +1082,147 @@ QUESTIONS = [
     {
         "id": 39,
         "subject": "Mathematics",
-        "topic": "Matrices & Determinants",
+        "topic": "Trigonometry",
         "difficulty": "Hard",
         "question": (
-            "If A is a square matrix of order 3 × 3 such that |A| = 5, then the value of |adj A| is:"
+            "If A + B + C = π in a triangle ABC, then the value of "
+            "sin 2A + sin 2B + sin 2C is equal to:"
         ),
         "options": {
-            "A": "25",
-            "B": "5",
-            "C": "125",
-            "D": "1 / 5"
+            "A": "4 sin A sin B sin C",
+            "B": "4 cos A cos B cos C",
+            "C": "2 sin A sin B sin C",
+            "D": "1 + 4 sin(A/2) sin(B/2) sin(C/2)"
         },
         "answer": "A",
         "explanation": (
-            "Property of adjugate matrix: |adj A| = |A|^(n − 1), where n is the order of matrix A.\n"
-            "Here n = 3 and |A| = 5.\n"
-            "|adj A| = 5^(3 − 1) = 5² = 25."
+            "Standard conditional trigonometric identity for triangle ABC (A + B + C = π):\n"
+            "sin 2A + sin 2B = 2 sin(A + B) cos(A − B) = 2 sin(π − C) cos(A − B) = 2 sin C cos(A − B).\n"
+            "sin 2C = 2 sin C cos C = 2 sin C cos(π − (A + B)) = −2 sin C cos(A + B).\n"
+            "Sum = 2 sin C [cos(A − B) − cos(A + B)] = 2 sin C [2 sin A sin B] = 4 sin A sin B sin C."
         ),
         "distractor_info": {
-            "B": "Formula mistake — used |adj A| = |A|",
-            "C": "Formula mistake — used |adj A| = |A|^n = 5³ = 125",
-            "D": "Formula mistake — used |A⁻¹| = 1 / |A|"
+            "B": "Confused with cos 2A + cos 2B + cos 2C identity",
+            "C": "Calculation mistake — missed factor of 2 in product formula",
+            "D": "Confused with sin A + sin B + sin C half-angle identity"
         }
     },
     {
         "id": 40,
         "subject": "Mathematics",
-        "topic": "Matrices & Determinants",
-        "difficulty": "Hard",
+        "topic": "Trigonometry",
+        "difficulty": "Very Hard",
         "question": (
-            "If A is a 3 × 3 non-singular matrix such that A² = 3A, then the value of |A| is:"
+            "From the top of a tower 100 m high, the angles of depression of two objects on the ground "
+            "on the same side of the tower are 45° and 30°. The distance between the two objects is:"
         ),
         "options": {
-            "A": "27",
-            "B": "3",
-            "C": "9",
-            "D": "81"
+            "A": "100(√3 − 1) m",
+            "B": "100(√3 + 1) m",
+            "C": "50(√3 − 1) m",
+            "D": "100 / √3 m"
         },
         "answer": "A",
         "explanation": (
-            "Take determinant on both sides: |A²| = |3A|.\n"
-            "|A|² = 3³ |A| = 27 |A| (since order n = 3, |k A| = k^n |A| = 3³ |A| = 27|A|).\n"
-            "Since A is non-singular, |A| ≠ 0.\n"
-            "Divide both sides by |A|: |A| = 27."
+            "Let tower height h = 100 m.\n"
+            "Distance to first object x₁ = h / tan 45° = 100 / 1 = 100 m.\n"
+            "Distance to second object x₂ = h / tan 30° = 100 / (1/√3) = 100√3 m.\n"
+            "Distance between objects = x₂ − x₁ = 100√3 − 100 = 100(√3 − 1) m ≈ 100(1.732 − 1) = 73.2 m."
         ),
         "distractor_info": {
-            "B": "Formula mistake — used |kA| = k|A| instead of k^n|A|",
-            "C": "Calculation mistake — used 3² instead of 3³",
-            "D": "Calculation mistake — used 3⁴"
+            "B": "Calculation mistake — added distances instead of subtracting",
+            "C": "Formula mistake — halved tower height",
+            "D": "Calculation mistake — omitted first object distance"
         }
     },
     {
         "id": 41,
         "subject": "Mathematics",
-        "topic": "Continuity & Differentiability",
+        "topic": "Trigonometry",
         "difficulty": "Hard",
         "question": (
-            "If f(x) = (sin 3x) / x for x ≠ 0 and f(0) = k is continuous at x = 0, then the value of k is:"
+            "The number of solutions of the quadratic trigonometric equation "
+            "2 sin²x + 3 sin x − 2 = 0 in the interval [0, 2π] is:"
         ),
         "options": {
-            "A": "3",
-            "B": "1",
-            "C": "1 / 3",
-            "D": "0"
+            "A": "2",
+            "B": "4",
+            "C": "1",
+            "D": "3"
         },
         "answer": "A",
         "explanation": (
-            "For f(x) to be continuous at x = 0: lim_{x→0} f(x) = f(0) = k.\n"
-            "lim_{x→0} (sin 3x) / x = lim_{x→0} 3 × [(sin 3x) / (3x)] = 3 × 1 = 3.\n"
-            "Therefore, k = 3."
+            "Factorise: 2 sin²x + 4 sin x − sin x − 2 = 0\n"
+            "=> 2 sin x(sin x + 2) − 1(sin x + 2) = 0\n"
+            "=> (2 sin x − 1)(sin x + 2) = 0.\n\n"
+            "Case 1: sin x = −2 (impossible, since −1 ≤ sin x ≤ 1).\n"
+            "Case 2: 2 sin x = 1  =>  sin x = 1/2.\n"
+            "In [0, 2π], sin x = 1/2 gives two solutions: x = π/6 and x = 5π/6.\n"
+            "Total valid solutions = 2."
         ),
         "distractor_info": {
-            "B": "Formula mistake — used standard limit lim (sin x)/x = 1 ignoring factor 3",
-            "C": "Calculation mistake — divided by 3 instead of multiplying",
-            "D": "Conceptual mistake — assumed limit at 0 is 0"
+            "B": "Included invalid solutions from sin x = -2",
+            "C": "Found only the first quadrant solution x = π/6",
+            "D": "Added extra solution from incorrect interval extension"
         }
     },
     {
         "id": 42,
         "subject": "Mathematics",
-        "topic": "Continuity & Differentiability",
-        "difficulty": "Hard",
+        "topic": "Trigonometry",
+        "difficulty": "Very Hard",
         "question": (
-            "If y = tan⁻¹[(3x − x³) / (1 − 3x²)], where −1/√3 < x < 1/√3, then dy/dx is equal to:"
+            "The value of the inverse trigonometric expression "
+            "sin⁻¹(sin(2π/3)) + cos⁻¹(cos(7π/6)) + tan⁻¹(tan(3π/4)) is:"
         ),
         "options": {
-            "A": "3 / (1 + x²)",
-            "B": "1 / (1 + x²)",
-            "C": "3 / (1 − x²)",
-            "D": "6 / (1 + x²)"
+            "A": "11π / 12",
+            "B": "3π / 4",
+            "C": "7π / 6",
+            "D": "5π / 4"
         },
         "answer": "A",
         "explanation": (
-            "Substitute x = tan θ.\n"
-            "y = tan⁻¹[(3 tan θ − tan³θ) / (1 − 3 tan²θ)] = tan⁻¹(tan 3θ) = 3θ.\n"
-            "Since x = tan θ, θ = tan⁻¹ x.\n"
-            "y = 3 tan⁻¹ x.\n"
-            "Differentiating w.r.t x: dy/dx = 3 / (1 + x²)."
+            "Evaluate each term using principal branch values:\n"
+            "1. sin⁻¹(sin(2π/3)): sin(2π/3) = sin(π − π/3) = sin(π/3).\n"
+            "   Since π/3 ∈ [−π/2, π/2], sin⁻¹(sin(2π/3)) = π/3.\n"
+            "2. cos⁻¹(cos(7π/6)): cos(7π/6) = cos(2π − 5π/6) = cos(5π/6).\n"
+            "   Since 5π/6 ∈ [0, π], cos⁻¹(cos(7π/6)) = 5π/6.\n"
+            "3. tan⁻¹(tan(3π/4)): tan(3π/4) = tan(π − π/4) = −tan(π/4) = tan(−π/4).\n"
+            "   Since −π/4 ∈ (−π/2, π/2), tan⁻¹(tan(3π/4)) = −π/4.\n\n"
+            "Sum = π/3 + 5π/6 − π/4 = (4π + 10π − 3π) / 12 = 11π / 12."
         ),
         "distractor_info": {
-            "B": "Omitted factor of 3 from triple angle formula",
-            "C": "Formula mistake — sign error in denominator",
-            "D": "Calculation mistake — doubled the derivative"
+            "B": "Naively removed functions without principal range restriction (2π/3 + 7π/6 + 3π/4)",
+            "C": "Sign error on inverse tangent term",
+            "D": "Forgot to subtract π/4 for tan term"
         }
     },
     {
         "id": 43,
         "subject": "Mathematics",
-        "topic": "Integrals",
+        "topic": "Trigonometry",
         "difficulty": "Hard",
         "question": (
-            "The value of the integral ∫ [e^x (1 + x) / cos²(x e^x)] dx is:"
+            "The exact value of the product sin 10° sin 50° sin 70° is:"
         ),
         "options": {
-            "A": "tan(x e^x) + C",
-            "B": "cot(x e^x) + C",
-            "C": "sec(x e^x) + C",
-            "D": "−tan(x e^x) + C"
+            "A": "1 / 8",
+            "B": "1 / 4",
+            "C": "1 / 16",
+            "D": "√3 / 8"
         },
         "answer": "A",
         "explanation": (
-            "Let t = x e^x.\n"
-            "Differentiating: dt = (1·e^x + x·e^x) dx = e^x(1 + x) dx.\n"
-            "The integral becomes: ∫ dt / cos²t = ∫ sec²t dt = tan t + C.\n"
-            "Substitute back t = x e^x: tan(x e^x) + C."
+            "Use the standard trigonometric identity: sin θ sin(60°−θ) sin(60°+θ) = (1/4) sin 3θ.\n"
+            "Let θ = 10°:\n"
+            "sin 10° sin(60°−10°) sin(60°+10°) = sin 10° sin 50° sin 70°.\n"
+            "= (1/4) sin(3 × 10°) = (1/4) sin 30° = (1/4) × (1/2) = 1 / 8."
         ),
         "distractor_info": {
-            "B": "Integration error — integrated sec²t as −cot t",
-            "C": "Integration error — integrated sec²t as sec t",
-            "D": "Sign error"
+            "B": "Forgot factor of 1/2 from sin 30°",
+            "C": "Extra factor of 1/2 added",
+            "D": "Confused with cosine product series"
         }
     },
     {
