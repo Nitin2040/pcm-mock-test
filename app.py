@@ -9,6 +9,7 @@ A complete competitive-exam mock test with:
 """
 
 import streamlit as st
+import streamlit.components.v1 as components
 from datetime import datetime
 from collections import Counter, defaultdict
 from questions import get_question_bank
@@ -546,23 +547,93 @@ def render_start_screen():
 
 
 def render_timer_sidebar():
-    """Sidebar with timer, palette, and legend."""
+    """Sidebar with live JS timer, section palette, and legend."""
     remaining = get_remaining_seconds()
     remaining_min = remaining / 60
 
-    # Timer display
-    timer_class = ""
-    if remaining_min <= 1:
-        timer_class = "timer-danger"
-    elif remaining_min <= 15:
-        timer_class = "timer-warning"
+    # Live JavaScript countdown timer embedded in sidebar
+    timer_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;800&display=swap');
+      body {{
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        font-family: 'Inter', sans-serif;
+      }}
+      .timer-box {{
+        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+        border: 1px solid rgba(99,102,241,0.35);
+        border-radius: 14px;
+        padding: 12px 16px;
+        text-align: center;
+        box-shadow: 0 0 20px rgba(99,102,241,0.25);
+      }}
+      .timer-lbl {{
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        color: #a5b4fc;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }}
+      .timer-val {{
+        font-size: 32px;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+        color: #e0e7ff;
+        letter-spacing: 2px;
+      }}
+      .warn {{ color: #fbbf24 !important; }}
+      .danger {{ color: #f87171 !important; animation: pulse 1s infinite; }}
+      @keyframes pulse {{
+        0%, 100% {{ opacity: 1; }}
+        50% {{ opacity: 0.5; }}
+      }}
+    </style>
+    </head>
+    <body>
+      <div class="timer-box">
+        <div class="timer-lbl">⏱️ Time Remaining</div>
+        <div id="clock" class="timer-val">--:--:--</div>
+      </div>
+      <script>
+        var remaining = {int(remaining)};
+        var target = Date.now() + (remaining * 1000);
 
-    st.sidebar.markdown(f"""
-    <div class="timer-container">
-        <div class="timer-label">Time Remaining</div>
-        <div class="timer-value {timer_class}">{format_time(remaining)}</div>
-    </div>
-    """, unsafe_allow_html=True)
+        function tick() {{
+          var now = Date.now();
+          var diff = Math.max(0, Math.floor((target - now) / 1000));
+          var h = Math.floor(diff / 3600);
+          var m = Math.floor((diff % 3600) / 60);
+          var s = diff % 60;
+
+          var hStr = (h < 10 ? '0' : '') + h;
+          var mStr = (m < 10 ? '0' : '') + m;
+          var sStr = (s < 10 ? '0' : '') + s;
+
+          var el = document.getElementById('clock');
+          if (el) {{
+            el.innerText = hStr + ':' + mStr + ':' + sStr;
+            if (diff <= 60) {{
+              el.className = 'timer-val danger';
+            }} else if (diff <= 900) {{
+              el.className = 'timer-val warn';
+            }}
+          }}
+        }}
+        tick();
+        setInterval(tick, 1000);
+      </script>
+    </body>
+    </html>
+    """
+
+    with st.sidebar:
+        components.html(timer_html, height=105)
 
     # Warnings
     if remaining_min <= 1 and remaining > 0:
@@ -576,7 +647,7 @@ def render_timer_sidebar():
     elif remaining_min <= 60:
         st.sidebar.markdown('<div class="warning-banner warn-60">⏰ 60 minutes remaining</div>', unsafe_allow_html=True)
 
-    # Progress
+    # Calculate overall progress
     answered = len(st.session_state.answers)
     reviewed = len(st.session_state.marked_review)
     st.sidebar.markdown(f"**Answered:** {answered}/{TOTAL_QUESTIONS}  •  **Review:** {reviewed}")
@@ -592,6 +663,14 @@ def render_timer_sidebar():
     </div>
     """, unsafe_allow_html=True)
 
+    # Calculate section stats
+    section_stats = {}
+    for subj in ["Physics", "Chemistry", "Mathematics"]:
+        q_indices = [i for i, q in enumerate(QUESTIONS) if q["subject"] == subj]
+        tot = len(q_indices)
+        att = sum(1 for i in q_indices if i in st.session_state.answers)
+        section_stats[subj] = {"total": tot, "attempted": att, "indices": q_indices}
+
     # Section-wise Question Palette with Direct Jump
     st.sidebar.markdown("---")
     st.sidebar.markdown("#### 🧩 Question Palette")
@@ -604,11 +683,11 @@ def render_timer_sidebar():
     ]
 
     for label, subj in sections:
-        st.sidebar.markdown(f"**{label}**")
-        subj_q_indices = [i for i, q in enumerate(QUESTIONS) if q["subject"] == subj]
+        stats = section_stats[subj]
+        st.sidebar.markdown(f"**{label}** ({stats['total']} Qs | {stats['attempted']}/{stats['total']} Answered)")
         
         cols = st.sidebar.columns(4)
-        for idx_in_subj, q_idx in enumerate(subj_q_indices):
+        for idx_in_subj, q_idx in enumerate(stats['indices']):
             col = cols[idx_in_subj % 4]
             is_current = (q_idx == st.session_state.current_q)
             is_ans = (q_idx in st.session_state.answers)
@@ -654,26 +733,37 @@ def render_question_screen():
     idx = st.session_state.current_q
     q = QUESTIONS[idx]
 
+    # Calculate section stats for section tabs
+    section_stats = {}
+    for subj in ["Physics", "Chemistry", "Mathematics"]:
+        q_indices = [i for i, q in enumerate(QUESTIONS) if q["subject"] == subj]
+        tot = len(q_indices)
+        att = sum(1 for i in q_indices if i in st.session_state.answers)
+        section_stats[subj] = {"total": tot, "attempted": att, "indices": q_indices}
+
     # Section Quick Navigation Bar
     st.markdown("### 📚 Test Sections")
     sec_cols = st.columns(3)
     sections_info = [
-        ("⚡ Physics (Q1–16)", "Physics"),
-        ("🧪 Chemistry (Q17–32)", "Chemistry"),
-        ("📐 Mathematics (Q33–45)", "Mathematics")
+        ("⚡ Physics", "Physics"),
+        ("🧪 Chemistry", "Chemistry"),
+        ("📐 Mathematics", "Mathematics")
     ]
     curr_subj = q["subject"]
 
     for sc, (sec_title, sec_subj) in zip(sec_cols, sections_info):
+        stats = section_stats[sec_subj]
         is_active_sec = (curr_subj == sec_subj)
+        tab_label = f"{sec_title} ({stats['total']} Qs | {stats['attempted']}/{stats['total']} Answered)"
+        
         with sc:
             if st.button(
-                sec_title, 
+                tab_label, 
                 key=f"sec_tab_{sec_subj}", 
                 type="primary" if is_active_sec else "secondary",
                 use_container_width=True
             ):
-                first_q_in_sec = next(i for i, item in enumerate(QUESTIONS) if item["subject"] == sec_subj)
+                first_q_in_sec = stats["indices"][0]
                 st.session_state.current_q = first_q_in_sec
                 st.rerun()
 
