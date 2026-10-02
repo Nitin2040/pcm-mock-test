@@ -5,7 +5,7 @@ A complete competitive-exam mock test with:
 - 45 JEE-level questions (16 Phys + 16 Chem + 13 Math with 11 Trigonometry questions)
 - Live JavaScript countdown timer with auto-submit
 - Section-relative question palette (1 to 16 in Phys, 1 to 16 in Chem, 1 to 13 in Math)
-- Direct 1-click jump navigation
+- Direct 1-click jump navigation with unique widget keys
 - Comprehensive post-test analytics
 """
 
@@ -133,8 +133,8 @@ def inject_css():
         gap: 8px;
     }
     .q-number {
-        font-size: 1.1rem;
-        font-weight: 700;
+        font-size: 1.15rem;
+        font-weight: 800;
         color: var(--accent);
     }
     .q-badge {
@@ -219,7 +219,7 @@ def inject_css():
         white-space: pre-wrap;
     }
 
-    /* Section divider */
+    /* Section title */
     .section-title {
         font-size: 1.3rem;
         font-weight: 800;
@@ -521,10 +521,11 @@ def render_timer_sidebar():
         att = sum(1 for i in q_indices if i in st.session_state.answers)
         section_stats[subj] = {"total": tot, "attempted": att, "indices": q_indices}
 
-    # Section-wise Question Palette counting 1..16 (or 1..13)
     st.sidebar.markdown("---")
     st.sidebar.markdown("#### 🧩 Question Palette")
-    st.sidebar.markdown("<small style='color:#94a3b8;'>Click any number to jump directly</small>", unsafe_allow_html=True)
+
+    curr_idx = st.session_state.current_q
+    curr_subj = QUESTIONS[curr_idx]["subject"]
 
     sections = [
         ("⚡ Section 1: Physics", "Physics"),
@@ -534,8 +535,15 @@ def render_timer_sidebar():
 
     for label, subj in sections:
         stats = section_stats[subj]
-        st.sidebar.markdown(f"**{label}** ({stats['total']} Qs | {stats['attempted']}/{stats['total']} Answered)")
+        is_current_sec = (curr_subj == subj)
         
+        # Section header in sidebar
+        sec_hdr = f"**{label}** ({stats['attempted']}/{stats['total']} Done)"
+        if is_current_sec:
+            st.sidebar.markdown(f"👉 {sec_hdr}")
+        else:
+            st.sidebar.markdown(sec_hdr)
+
         indices = stats['indices']
         # Render clean grid row by row (4 items per row)
         for row_start in range(0, len(indices), 4):
@@ -543,14 +551,18 @@ def render_timer_sidebar():
             row_indices = indices[row_start : row_start + 4]
             for col_idx, q_idx in enumerate(row_indices):
                 sec_q_num = row_start + col_idx + 1  # 1 to 16 in Physics/Chem, 1 to 13 in Math
-                is_current = (q_idx == st.session_state.current_q)
+                is_current_q = (q_idx == curr_idx)
 
                 btn_label = str(sec_q_num)
-                btn_type = "primary" if is_current else "secondary"
+                btn_type = "primary" if is_current_q else "secondary"
 
-                if cols[col_idx].button(btn_label, key=f"p_btn_{q_idx}", use_container_width=True, type=btn_type):
+                # Use 100% unique key for every single button to eliminate cross-section click collision
+                unique_key = f"palette_btn_{subj}_{sec_q_num}_global_{q_idx}"
+                if cols[col_idx].button(btn_label, key=unique_key, use_container_width=True, type=btn_type):
                     st.session_state.current_q = q_idx
                     st.rerun()
+
+        st.sidebar.markdown("")
 
     st.sidebar.markdown("---")
 
@@ -601,7 +613,7 @@ def render_question_screen():
         with sc:
             if st.button(
                 tab_label, 
-                key=f"sec_tab_{sec_subj}", 
+                key=f"top_nav_sec_{sec_subj}", 
                 type="primary" if is_active_sec else "secondary",
                 use_container_width=True
             ):
@@ -620,11 +632,12 @@ def render_question_screen():
     subj_indices = section_stats[curr_subj]["indices"]
     sec_q_num = subj_indices.index(idx) + 1
     sec_total = len(subj_indices)
+    sec_num_idx = ['Physics','Chemistry','Mathematics'].index(curr_subj) + 1
 
     st.markdown(f"""
     <div class="question-card">
         <div class="q-header">
-            <span class="q-number">Section {['Physics','Chemistry','Mathematics'].index(curr_subj)+1}: {q['subject']} — Question {sec_q_num} of {sec_total} <small style="color:#94a3b8;font-weight:400;">(Overall Q{idx+1}/45)</small></span>
+            <span class="q-number">Section {sec_num_idx}: {q['subject']} — Question {sec_q_num} of {sec_total} <small style="color:#94a3b8;font-weight:400;">(Overall Q{idx+1}/45)</small></span>
             <div>
                 <span class="q-badge {subj_cls}">{q['subject']}</span>
             </div>
@@ -661,12 +674,12 @@ def render_question_screen():
     col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
 
     with col1:
-        if st.button("⬅️ Previous", disabled=(idx == 0), use_container_width=True):
+        if st.button("⬅️ Previous", disabled=(idx == 0), use_container_width=True, key=f"nav_prev_{idx}"):
             st.session_state.current_q = max(0, idx - 1)
             st.rerun()
 
     with col2:
-        if st.button("💾 Save & Next", type="primary", use_container_width=True):
+        if st.button("💾 Save & Next", type="primary", use_container_width=True, key=f"nav_savenext_{idx}"):
             if selected:
                 ans_key = selected.split(")")[0].strip()
                 st.session_state.answers[idx] = ans_key
@@ -677,7 +690,7 @@ def render_question_screen():
     with col3:
         is_reviewed = idx in st.session_state.marked_review
         review_label = "🔖 Unmark Review" if is_reviewed else "🔖 Mark for Review"
-        if st.button(review_label, use_container_width=True):
+        if st.button(review_label, use_container_width=True, key=f"nav_review_{idx}"):
             if is_reviewed:
                 st.session_state.marked_review.discard(idx)
             else:
@@ -685,13 +698,13 @@ def render_question_screen():
             st.rerun()
 
     with col4:
-        if st.button("🗑️ Clear Response", use_container_width=True):
+        if st.button("🗑️ Clear Response", use_container_width=True, key=f"nav_clear_{idx}"):
             if idx in st.session_state.answers:
                 del st.session_state.answers[idx]
             st.rerun()
 
     with col5:
-        if st.button("Next ➡️", disabled=(idx >= TOTAL_QUESTIONS - 1), use_container_width=True):
+        if st.button("Next ➡️", disabled=(idx >= TOTAL_QUESTIONS - 1), use_container_width=True, key=f"nav_next_{idx}"):
             st.session_state.current_q = min(TOTAL_QUESTIONS - 1, idx + 1)
             st.rerun()
 
@@ -712,12 +725,12 @@ def render_question_screen():
 
         bc1, bc2, _ = st.columns([1, 1, 3])
         with bc1:
-            if st.button("✅ Yes, Submit", type="primary", use_container_width=True):
+            if st.button("✅ Yes, Submit", type="primary", use_container_width=True, key="confirm_submit_yes"):
                 st.session_state.test_submitted = True
                 st.session_state.show_submit_confirm = False
                 st.rerun()
         with bc2:
-            if st.button("❌ Cancel", use_container_width=True):
+            if st.button("❌ Cancel", use_container_width=True, key="confirm_submit_cancel"):
                 st.session_state.show_submit_confirm = False
                 st.rerun()
 
@@ -749,7 +762,7 @@ def render_result_screen():
         <div class="stat-card"><div class="stat-label">Wrong</div><div class="stat-value sv-red">{results['wrong']}</div></div>
         <div class="stat-card"><div class="stat-label">Unattempted</div><div class="stat-value sv-yellow">{results['unattempted']}</div></div>
         <div class="stat-card"><div class="stat-label">Accuracy</div><div class="stat-value sv-cyan">{results['accuracy']:.1f}%</div></div>
-        <div class="stat-card"><div class="stat-label">Attempt Rate</div><div class="stat-value sv-blue">{results['attempt_rate']:.1f}%</div></div>
+        <div class="stat-card"><div class="stat-card-label">Attempt Rate</div><div class="stat-value sv-blue">{results['attempt_rate']:.1f}%</div></div>
         <div class="stat-card"><div class="stat-label">Negative Marks</div><div class="stat-value sv-red">−{results['wrong_marks']}</div></div>
         <div class="stat-card"><div class="stat-label">Percentage</div><div class="stat-value sv-accent">{results['percentage']:.1f}%</div></div>
         <div class="stat-card"><div class="stat-label">Positive Marks</div><div class="stat-value sv-green">+{results['correct_marks']}</div></div>
