@@ -585,41 +585,51 @@ def render_timer_sidebar():
     # Legend
     st.sidebar.markdown("""
     <div class="legend">
-        <div class="legend-item"><div class="legend-dot dot-green"></div> Answered</div>
-        <div class="legend-item"><div class="legend-dot dot-red"></div> Not Answered</div>
-        <div class="legend-item"><div class="legend-dot dot-yellow"></div> Marked Review</div>
         <div class="legend-item"><div class="legend-dot dot-blue"></div> Current</div>
+        <div class="legend-item"><div class="legend-dot dot-green"></div> Answered</div>
+        <div class="legend-item"><div class="legend-dot dot-yellow"></div> Marked Review</div>
+        <div class="legend-item"><div class="legend-dot dot-red"></div> Not Answered</div>
     </div>
     """, unsafe_allow_html=True)
 
-    # Question palette
-    st.sidebar.markdown("#### Question Palette")
-    palette_html = '<div style="display:flex;flex-wrap:wrap;gap:2px;">'
-    for i in range(TOTAL_QUESTIONS):
-        if i == st.session_state.current_q:
-            cls = "pal-current"
-        elif i in st.session_state.marked_review:
-            cls = "pal-review"
-        elif i in st.session_state.answers:
-            cls = "pal-answered"
-        else:
-            cls = "pal-unanswered"
-        palette_html += f'<div class="palette-btn {cls}">{i+1}</div>'
-    palette_html += '</div>'
-    st.sidebar.markdown(palette_html, unsafe_allow_html=True)
-
-    # Palette click navigation (using selectbox as Streamlit can't handle onclick in HTML)
+    # Section-wise Question Palette with Direct Jump
     st.sidebar.markdown("---")
-    jump = st.sidebar.number_input(
-        "Jump to question",
-        min_value=1, max_value=TOTAL_QUESTIONS,
-        value=st.session_state.current_q + 1,
-        step=1,
-        key="jump_input"
-    )
-    if st.sidebar.button("Go", key="jump_btn", use_container_width=True):
-        st.session_state.current_q = jump - 1
-        st.rerun()
+    st.sidebar.markdown("#### 🧩 Question Palette")
+    st.sidebar.markdown("<small style='color:#94a3b8;'>Click any question to jump directly</small>", unsafe_allow_html=True)
+
+    sections = [
+        ("⚡ Physics", "Physics"),
+        ("🧪 Chemistry", "Chemistry"),
+        ("📐 Mathematics", "Mathematics")
+    ]
+
+    for label, subj in sections:
+        st.sidebar.markdown(f"**{label}**")
+        subj_q_indices = [i for i, q in enumerate(QUESTIONS) if q["subject"] == subj]
+        
+        cols = st.sidebar.columns(4)
+        for idx_in_subj, q_idx in enumerate(subj_q_indices):
+            col = cols[idx_in_subj % 4]
+            is_current = (q_idx == st.session_state.current_q)
+            is_ans = (q_idx in st.session_state.answers)
+            is_rev = (q_idx in st.session_state.marked_review)
+
+            if is_current:
+                btn_label = f"▶{q_idx+1}"
+                btn_type = "primary"
+            elif is_rev:
+                btn_label = f"🟡{q_idx+1}"
+                btn_type = "secondary"
+            elif is_ans:
+                btn_label = f"🟢{q_idx+1}"
+                btn_type = "secondary"
+            else:
+                btn_label = f"⚪{q_idx+1}"
+                btn_type = "secondary"
+
+            if col.button(btn_label, key=f"p_btn_{q_idx}", use_container_width=True, type=btn_type):
+                st.session_state.current_q = q_idx
+                st.rerun()
 
     st.sidebar.markdown("---")
 
@@ -644,6 +654,29 @@ def render_question_screen():
     idx = st.session_state.current_q
     q = QUESTIONS[idx]
 
+    # Section Quick Navigation Bar
+    st.markdown("### 📚 Test Sections")
+    sec_cols = st.columns(3)
+    sections_info = [
+        ("⚡ Physics (Q1–16)", "Physics"),
+        ("🧪 Chemistry (Q17–32)", "Chemistry"),
+        ("📐 Mathematics (Q33–45)", "Mathematics")
+    ]
+    curr_subj = q["subject"]
+
+    for sc, (sec_title, sec_subj) in zip(sec_cols, sections_info):
+        is_active_sec = (curr_subj == sec_subj)
+        with sc:
+            if st.button(
+                sec_title, 
+                key=f"sec_tab_{sec_subj}", 
+                type="primary" if is_active_sec else "secondary",
+                use_container_width=True
+            ):
+                first_q_in_sec = next(i for i, item in enumerate(QUESTIONS) if item["subject"] == sec_subj)
+                st.session_state.current_q = first_q_in_sec
+                st.rerun()
+
     # Subject badge class
     subj_cls = {
         "Physics": "badge-physics",
@@ -651,19 +684,12 @@ def render_question_screen():
         "Mathematics": "badge-mathematics",
     }.get(q["subject"], "")
 
-    diff_cls = {
-        "Medium": "badge-medium",
-        "Hard": "badge-hard",
-        "Very Hard": "badge-veryhard",
-    }.get(q["difficulty"], "")
-
     st.markdown(f"""
     <div class="question-card">
         <div class="q-header">
             <span class="q-number">Question {idx+1} / {TOTAL_QUESTIONS}</span>
             <div>
                 <span class="q-badge {subj_cls}">{q['subject']}</span>
-                <span class="q-badge {diff_cls}">{q['difficulty']}</span>
             </div>
         </div>
         <div class="q-text">{q['question']}</div>
