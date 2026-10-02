@@ -526,7 +526,7 @@ def render_timer_sidebar():
 
     st.sidebar.markdown("---")
     st.sidebar.markdown("#### 🧩 Question Palette")
-    st.sidebar.markdown("<small>🟢 Ans | ⚪ Unans | 🟣 Review | 📍 Current</small>", unsafe_allow_html=True)
+    st.sidebar.markdown("<small>🟢 Ans | 🔴 Unans | 🟣 Review | 📍 Current</small>", unsafe_allow_html=True)
 
     curr_idx = st.session_state.current_q
     curr_subj = QUESTIONS[curr_idx]["subject"]
@@ -568,10 +568,12 @@ def render_timer_sidebar():
                 elif is_answered:
                     status = "🟢"
                 else:
-                    status = "⚪"
+                    status = "🔴"
                 
+                # Active question gets primary color, others get secondary. 
+                # We can append a pin for active question.
                 if is_current_q:
-                    status = "📍"
+                    status += "📍"
 
                 btn_label = f"{sec_q_num} {status}"
                 btn_type = "primary" if is_current_q else "secondary"
